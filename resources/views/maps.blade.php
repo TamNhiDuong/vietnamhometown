@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>VietNam Hometown - Cổng Thông Tin Trợ Giúp Miền Trung yêu dấu!</title>
     <meta name="description" content="VietNam Hometown - Trợ giúp Miền Trung yêu dấu!">
@@ -433,5 +433,15 @@
     </div>
 </div>
 <div class="overlay"></div>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-56178425-10"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-56178425-10');
+</script>
+
 </body>
 </html>
