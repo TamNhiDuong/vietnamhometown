@@ -16,7 +16,10 @@ class MapsController extends Controller
     public function index()
     {
         $maps = Map::all();
-        return view('maps')->with('data', $maps);
+        $lat = session('lat', 16.8014069);
+        $lng = session('lng', 107.053141);
+
+        return view('maps')->with('data', $maps)->with('lat', $lat)->with('lng', $lng);
     }
 
     /**
@@ -67,6 +70,8 @@ class MapsController extends Controller
         } else {
             Map::create($data);
         }
+        session()->put('lat', $data['lat']);
+        session()->put('lng', $data['lng']);
         return response()->json(['status' => true, 'message' => 'OK']);
     }
 }

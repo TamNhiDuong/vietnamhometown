@@ -10,11 +10,11 @@
     <meta name="keywords" content="VietNam Hometown,Miền Trung, ngập, cứu trợ">
     <meta name="author" content="VietNam Hometown">
 
-    <meta property="og:image" content="/vietnamhometown.jpg" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://vietnamhometown" />
-    <meta property="og:title" content="VietNam Hometown - Cổng Thông Tin Trợ Giúp Miền Trung yêu dấu!" />
-    <meta property="og:description" content="VietNam Hometown - Cổng Thông Tin Trợ Giúp Miền Trung yêu dấu!" />
+    <meta property="og:image" content="/vietnamhometown.jpg"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://vietnamhometown"/>
+    <meta property="og:title" content="VietNam Hometown - Cổng Thông Tin Trợ Giúp Miền Trung yêu dấu!"/>
+    <meta property="og:description" content="VietNam Hometown - Cổng Thông Tin Trợ Giúp Miền Trung yêu dấu!"/>
 
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -64,9 +64,15 @@
         }
 
         .bs-docs-footer {
-            padding-top: 40px;
+            padding-top: 0px;
             padding-bottom: 40px;
-            margin-top: 60px;
+            margin-top: 10px;
+        }
+
+        #map {
+            width: 100%;
+            height: 700px;
+            max-width: 100%;
         }
     </style>
 </head>
@@ -114,221 +120,228 @@
         <!-- Content
         =========================================== -->
         <div class="col-md-9" role="main">
-            <style type="text/css">
-                #map {
-                    width: 100%;
-                    height: 700px;
-                    max-width: 100%;
-                }
-            </style>
             <input class="form-control" type="text" id="locationTextField">
-            <br>
-            <div id="map-container">
-                <div id="map"></div>
-            </div>
-            <script>
-
-                var currentLatLng = {};
-
-                function getCreateBtn(latLng) {
-                    currentLatLng = latLng;
-                    return '<a class="btn btn-info" onclick="addMaker()"> Thêm mới điểm cứu trợ</a>';
-                }
-
-                function initialize() {
-                    var infowindow = new google.maps.InfoWindow();
-
-
-                    var center = new google.maps.LatLng(16.8014069, 107.053141, 13);
-
-                    var map = new google.maps.Map(document.getElementById('map'), {
-                        zoom: 15,
-                        center: center,
-                        mapTypeId: google.maps.MapTypeId.ROADMAP
-                    });
-
-                    map.addListener("click", function (mapsMouseEvent) {
-                        // Close the current InfoWindow.
-                        infowindow.close();
-                        // Create a new InfoWindow.
-                        infowindow = new google.maps.InfoWindow({
-                            position: mapsMouseEvent.latLng,
-                        });
-                        var ll = mapsMouseEvent.latLng.toJSON();
-                        infowindow.setContent(getCreateBtn(ll));
-                        infowindow.open(map);
-                    });
-
-
-                    var l = data.length;
-                    for (var i = 0; i < l; i++) {
-                        var latLng = new google.maps.LatLng(data[i].lat, data[i].lng);
-                        var marker = new google.maps.Marker({
-                            position: latLng,
-                            icon: data[i].icon,
-                            title: data[i]['title'],
-                            idx: i
-                        });
-
-                        google.maps.event.addListener(marker, 'mouseover', (function (marker) {
-                            return function () {
-                                var content = getContent(data[marker.idx]);
-                                infowindow.setContent(content);
-                                infowindow.open(map, marker);
-                            }
-                        })(marker));
-                        markers.push(marker);
-                    }
-
-
-                    var input = document.getElementById('locationTextField');
-                    var autocomplete = new google.maps.places.Autocomplete(input);
-
-                    var options = {
-                        imagePath: '/images/m'
-                    };
-                    var markerCluster = new MarkerClusterer(map, markers, options);
-                }
-
-                var data = [];
-                    @foreach($data as $map)
-                var latLng = {
-                        lat: '{{$map->lat}}',
-                        lng: '{{$map->lng}}',
-                        icon: getIcon({{$map->type}}),
-                        title: '{{$map->title}}',
-                        description: "{{str_replace( array( "\n", "\r" ), array( "\\n", "\\r" ),$map->description)}}",
-                        type: '{{$map->type}}',
-                        id: '{{$map->id}}',
-                    };
-                data.push(latLng);
-                    @endforeach
-
-                var markers = [];
-
-                $(document).on({
-
-                    ajaxStart: function () {
-                        $("body").addClass("loading");
-                    },
-                    ajaxStop: function () {
-                        $("body").removeClass("loading");
-                    }
-                });
-
-                var currentItem = {};
-
-                function getIcon(type) {
-                    return '/images/m' + type + '.png';
-                }
-
-                function getStatus(type) {
-                    switch (type) {
-                        case '1':
-                            return '<p class="btn btn-info">Đã cứu trợ</p>';
-                        case '2':
-                            return '<p class="btn btn-warning">Đang tìm kiếm</p>';
-                        case '3':
-                            return '<p class="btn btn-dark">Đang cứu trợ</p>';
-                        case '4':
-                            return '<p class="btn btn-danger">Nguy cấp</p>';
-                        case '5':
-                            return '<p class="btn btn-danger">Cực kỳ nguy cấp</p>';
-                        default:
-                            return '<p class="btn btn-info">Chưa rõ</p>';
-                    }
-
-                }
-
-                function getEditBtn(data) {
-                    currentItem = data;
-                    return ' <a class="btn btn-warning" onclick="setFormData()"> Chỉnh sửa</a> ';
-                }
-
-                function getContent(data) {
-                    return "<div> <h2>" + data['title'] + "</h2> " + getStatus(data['type']) + getEditBtn(data) + " <p style='padding: 10px; font-size: 18px'>" + data['description'] + "</p></div>";
-                }
-
-                function setFormData() {
-                    $('#id').val(currentItem['id']);
-                    $('#title').val(currentItem['title']);
-                    $('#type').val(currentItem['type']);
-                    $('#lat').val(currentItem['lat']);
-                    $('#lng').val(currentItem['lng']);
-                    $('#description').val(currentItem['description']).html(currentItem['description']);
-                    $('#exampleModalCenter').modal('show');
-                }
-
-                function save() {
-
-                    if (!$.trim($('#title').val())) {
-                        return alert('Bạn cần nhập tên');
-                    }
-                    if (!$.trim($('#description').val())) {
-                        return alert('Bạn cần nhập mô tả');
-                    }
-
-                    $.ajaxSetup({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        }
-                    });
-
-                    $.ajax({
-                        url: "maps/post",
-                        type: "post",
-                        data: {
-                            id: $('#id').val(),
-                            title: $('#title').val(),
-                            type: $('#type').val(),
-                            description: $('#description').val(),
-                            lat: $('#lat').val(),
-                            lng: $('#lng').val(),
-                        },
-                        success: function (response) {
-                            if (response.status) {
-                                alert('Cảm ơn bạn đã hỗ trợ chúng tôi cập nhật thông tin người cần cứu trợ!');
-                                return window.location.reload();
-                            }
-                            return alert(response.message);
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.log(textStatus, errorThrown);
-                            alert('Đã có lỗi xảy ra, vui lòng thử lại hoặc tải lại trang!');
-                        }
-                    });
-                }
-
-
-                function addMaker() {
-                    $('#id').val('');
-                    $('#title').val('');
-                    $('#type').val('0');
-                    $('#lat').val(currentLatLng['lat']);
-                    $('#lng').val(currentLatLng['lng']);
-                    $('#description').val('');
-                    $('#exampleModalCenter').modal('show');
-                }
-            </script>
-
-            <script
-                src="https://gmaps-marker-clusterer.github.io/gmaps-marker-clusterer/assets/js/markerclusterer.js"></script>
-            <script async defer
-                    src="https://maps.googleapis.com/maps/api/js?callback=initialize&key=AIzaSyBd4yBeOz4tTvNkwzkV0JJRS80xtKGqsaA&libraries=places&sensor=false"></script>
-        </div>
-
-        <!-- Page navigation
-        =========================================== -->
-        <div class="col-md-3" role="complementary">
-            <div class="bs-docs-sidebar hidden-print">
-                <ul class="nav bs-docs-sidenav">
-                </ul>
-                <a class="back-to-top" href="#top">
-                    <i class="glyphicon glyphicon-chevron-up"></i> Back to top
-                </a>
-            </div>
         </div>
     </div>
+</div>
+<br>
+<div id="map"></div>
+<script>
+
+    var currentLatLng = {};
+
+    function getCreateBtn(latLng) {
+        currentLatLng = latLng;
+        return '<a class="btn btn-info" onclick="addMaker()"> Thêm mới điểm cứu trợ</a>';
+    }
+
+    function initialize() {
+        var infowindow = new google.maps.InfoWindow({
+            disableAutoPan: true
+        });
+
+
+        var center = new google.maps.LatLng('{{$lat}}', '{{$lng}}', 13);
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 15,
+            center: center,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+        //
+        map.addListener("click", function (mapsMouseEvent) {
+            // Close the current InfoWindow.
+            infowindow.close();
+            // Create a new InfoWindow.
+            infowindow = new google.maps.InfoWindow({
+                position: mapsMouseEvent.latLng,
+                disableAutoPan: true
+            });
+            var ll = mapsMouseEvent.latLng.toJSON();
+            infowindow.setContent(getCreateBtn(ll));
+            infowindow.open(map);
+        });
+
+
+        var l = data.length;
+        for (var i = 0; i < l; i++) {
+            var latLng = new google.maps.LatLng(data[i].lat, data[i].lng);
+            var marker = new google.maps.Marker({
+                position: latLng,
+                icon: data[i].icon,
+                title: data[i]['title'],
+                idx: i
+            });
+
+            google.maps.event.addListener(marker, 'mouseover', (function (marker) {
+                return function () {
+                    var content = getContent(data[marker.idx]);
+                    infowindow.setContent(content);
+                    infowindow.open(map, marker);
+                }
+            })(marker));
+
+            google.maps.event.addListener(marker, 'mousedown', (function (marker) {
+                return function () {
+                    var content = getContent(data[marker.idx]);
+                    infowindow.setContent(content);
+                    infowindow.open(map, marker);
+                }
+            })(marker));
+
+
+            markers.push(marker);
+        }
+
+
+        var input = document.getElementById('locationTextField');
+        var autocomplete = new google.maps.places.Autocomplete(input);
+
+        var options = {
+            imagePath: '/images/m'
+        };
+        var markerCluster = new MarkerClusterer(map, markers, options);
+    }
+
+    var data = [];
+        @foreach($data as $map)
+    var latLng = {
+            lat: '{{$map->lat}}',
+            lng: '{{$map->lng}}',
+            icon: getIcon({{$map->type}}),
+            title: '{{$map->title}}',
+            description: "{{str_replace( array( "\n", "\r" ), array( "\\n", "\\r" ),$map->description)}}",
+            type: '{{$map->type}}',
+            id: '{{$map->id}}',
+        };
+    data.push(latLng);
+        @endforeach
+
+    var markers = [];
+
+    $(document).on({
+
+        ajaxStart: function () {
+            $("body").addClass("loading");
+        },
+        ajaxStop: function () {
+            $("body").removeClass("loading");
+        }
+    });
+
+    var currentItem = {};
+
+    function getIcon(type) {
+        return '/images/m' + type + '.png';
+    }
+
+    function getStatus(type) {
+        switch (type) {
+            case '1':
+                return '<p class="btn btn-info">Đã cứu trợ</p>';
+            case '2':
+                return '<p class="btn btn-warning">Đang tìm kiếm</p>';
+            case '3':
+                return '<p class="btn btn-dark">Đang cứu trợ</p>';
+            case '4':
+                return '<p class="btn btn-danger">Nguy cấp</p>';
+            case '5':
+                return '<p class="btn btn-danger">Cực kỳ nguy cấp</p>';
+            default:
+                return '<p class="btn btn-info">Chưa rõ</p>';
+        }
+
+    }
+
+    function getEditBtn(data) {
+        currentItem = data;
+        return ' <a class="btn btn-warning" onclick="setFormData()"> Chỉnh sửa</a> ';
+    }
+
+    function getContent(data) {
+        return "<div> <h2>" + data['title'] + "</h2> " + getStatus(data['type']) + getEditBtn(data) + " <p style='padding: 10px; font-size: 18px'>" + data['description'].replace(/\n/g, "<br />"); + "</p></div>";
+    }
+
+    function setFormData() {
+        $('#id').val(currentItem['id']);
+        $('#title').val(currentItem['title']);
+        $('#type').val(currentItem['type']);
+        $('#lat').val(currentItem['lat']);
+        $('#lng').val(currentItem['lng']);
+        $('#description').val(currentItem['description']).html(currentItem['description']);
+        $('#exampleModalCenter').modal('show');
+    }
+
+    function save() {
+
+        if (!$.trim($('#title').val())) {
+            return alert('Bạn cần nhập tên');
+        }
+        if (!$.trim($('#description').val())) {
+            return alert('Bạn cần nhập ghi chú');
+        }
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            url: "maps/post",
+            type: "post",
+            data: {
+                id: $('#id').val(),
+                title: $('#title').val(),
+                type: $('#type').val(),
+                description: $('#description').val(),
+                lat: $('#lat').val(),
+                lng: $('#lng').val(),
+            },
+            success: function (response) {
+                if (response.status) {
+                    alert('Cảm ơn bạn đã hỗ trợ chúng tôi cập nhật thông tin người cần cứu trợ!');
+                    return window.location.reload();
+                }
+                return alert(response.message);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus, errorThrown);
+                alert('Đã có lỗi xảy ra, vui lòng thử lại hoặc tải lại trang!');
+            }
+        });
+    }
+
+
+    function addMaker() {
+        $('#id').val('');
+        $('#title').val('');
+        $('#type').val('0');
+        $('#lat').val(currentLatLng['lat']);
+        $('#lng').val(currentLatLng['lng']);
+        $('#description').val('');
+        $('#exampleModalCenter').modal('show');
+    }
+</script>
+
+<script
+    src="https://gmaps-marker-clusterer.github.io/gmaps-marker-clusterer/assets/js/markerclusterer.js"></script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?callback=initialize&key=AIzaSyBd4yBeOz4tTvNkwzkV0JJRS80xtKGqsaA&libraries=places&sensor=false"></script>
+</div>
+
+<!-- Page navigation
+=========================================== -->
+<div class="col-md-3" role="complementary">
+    <div class="bs-docs-sidebar hidden-print">
+        <ul class="nav bs-docs-sidenav">
+        </ul>
+        <a class="back-to-top" href="#top">
+            <i class="glyphicon glyphicon-chevron-up"></i> Back to top
+        </a>
+    </div>
+</div>
+</div>
 </div>
 
 
@@ -341,7 +354,8 @@
 
             </ul>
         </div>
-        <p>Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License</a>,  <a href="/chinh-sach" target="_blank">Chính sách điều khoản</a>
+        <p>Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License</a>, <a
+                href="/chinh-sach" target="_blank">Chính sách điều khoản</a>
         </p>
         <p>
             Power by <a href="https://vietnamhometown.com">VietNam HomeTown</a>
@@ -378,12 +392,12 @@
                     <input id="lat" type="hidden">
                     <input id="lng" type="hidden">
                     <div class="form-group">
-                        <label for="exampleFormControlInput1">Tên</label>
+                        <label for="exampleFormControlInput1">Tên <span class="text-danger"> * </span></label>
                         <input id="title" type="email" class="form-control"
                                placeholder="Nhập tên người cần cứu trợ">
                     </div>
                     <div class="form-group">
-                        <label for="exampleFormControlSelect1">Tình trạng hiện tại</label>
+                        <label for="exampleFormControlSelect1">Tình trạng hiện tại <span class="text-danger"> * </span></label>
                         <select class="form-control" id="type">
                             <option value="0">Chưa rõ</option>
                             <option value="1">Đã cứu trợ</option>
@@ -394,7 +408,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="exampleFormControlTextarea1">Ghi chú</label>
+                        <label for="exampleFormControlTextarea1">Ghi chú <span class="text-danger"> * </span></label>
                         <textarea class="form-control" id="description" rows="8"></textarea>
                     </div>
                 </form>
