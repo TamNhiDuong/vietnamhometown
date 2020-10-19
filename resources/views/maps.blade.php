@@ -5,12 +5,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>VietNam Hometown - Bản Đồ Realtime Các Điểm Cứu Trợ Đồng Bào Miền Trung!</title>
+    <title>VietNam Hometown - Bản Đồ Realtime Các Điểm Cần Cứu Trợ Đồng Bào Miền Trung!</title>
     <meta name="description" content="VietNam Hometown - Bản Đồ Realtime Các Điểm Cứu Trợ Đồng Bào Miền Trung!">
     <meta name="keywords" content="VietNam Hometown,Miền Trung, ngập, cứu trợ">
     <meta name="author" content="VietNam Hometown">
 
-    <meta property="og:image" content="/vietnamhometown.jpg"/>
+    <meta property="og:image" content="/vietnamhometown.jpg?v=1"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="https://vietnamhometown"/>
     <meta property="og:title" content="VietNam Hometown - Bản Đồ Realtime Các Điểm Cứu Trợ Đồng Bào Miền Trung!"/>
