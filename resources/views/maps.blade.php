@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
 
     <title>VietNam Hometown - Cổng Thông Tin Trợ Giúp Miền Trung yêu dấu!</title>
     <meta name="description" content="VietNam Hometown - Trợ giúp Miền Trung yêu dấu!">
@@ -149,17 +149,28 @@
             mapTypeId: google.maps.MapTypeId.ROADMAP
         });
         //
+        var dbClick = false;
         map.addListener("dblclick", function (mapsMouseEvent) {
-            // Close the current InfoWindow.
-            infowindow.close();
-            // Create a new InfoWindow.
-            infowindow = new google.maps.InfoWindow({
-                position: mapsMouseEvent.latLng,
-                disableAutoPan: true
-            });
-            var ll = mapsMouseEvent.latLng.toJSON();
-            infowindow.setContent(getCreateBtn(ll));
-            infowindow.open(map);
+            dbClick = true;
+        });
+        map.addListener("click", function (mapsMouseEvent) {
+            setTimeout(function () {
+                if (dbClick) {
+                    dbClick = false;
+                    return false;
+                }
+                // Close the current InfoWindow.
+                infowindow.close();
+                // Create a new InfoWindow.
+                infowindow = new google.maps.InfoWindow({
+                    position: mapsMouseEvent.latLng,
+                    disableAutoPan: true
+                });
+                var ll = mapsMouseEvent.latLng.toJSON();
+                infowindow.setContent(getCreateBtn(ll));
+                infowindow.open(map);
+            }, 200)
+
         });
 
 
@@ -181,7 +192,7 @@
                 }
             })(marker));
 
-            google.maps.event.addListener(marker, 'mousedown', (function (marker) {
+            google.maps.event.addListener(marker, 'click', (function (marker) {
                 return function () {
                     var content = getContent(data[marker.idx]);
                     infowindow.setContent(content);
@@ -259,7 +270,8 @@
     }
 
     function getContent(data) {
-        return "<div> <h2>" + data['title'] + "</h2> " + getStatus(data['type']) + getEditBtn(data) + " <p style='padding: 10px; font-size: 18px'>" + data['description'].replace(/\n/g, "<br />"); + "</p></div>";
+        return "<div> <h2>" + data['title'] + "</h2> " + getStatus(data['type']) + getEditBtn(data) + " <p style='padding: 10px; font-size: 18px'>" + data['description'].replace(/\n/g, "<br />");
+        +"</p></div>";
     }
 
     function setFormData() {
