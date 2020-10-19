@@ -149,7 +149,7 @@
             mapTypeId: google.maps.MapTypeId.ROADMAP
         });
         //
-        map.addListener("click", function (mapsMouseEvent) {
+        map.addListener("dblclick", function (mapsMouseEvent) {
             // Close the current InfoWindow.
             infowindow.close();
             // Create a new InfoWindow.
