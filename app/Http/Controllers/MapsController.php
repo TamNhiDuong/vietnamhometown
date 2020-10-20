@@ -15,7 +15,7 @@ class MapsController extends Controller
      */
     public function index()
     {
-        if (\request('type')) {
+        if (\request('type') && request('type') != 'all') {
             $maps = Map::where('type', request('type'))->get();
         } else {
             $maps = Map::all();

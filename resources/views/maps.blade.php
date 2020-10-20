@@ -128,6 +128,7 @@
                 <div class="form-group">
                     <label for="type_for_search">Tìm kiếm theo tình trạng</label>
                     <select class="form-control" name="type" id="type_for_search">
+                        <option value="all" {{request('type') == 'all' ? 'selected' : ''}}>Tất cả</option>
                         <option value="0" {{request('type') == '0' ? 'selected' : ''}}>Chưa rõ</option>
                         <option value="1" {{request('type') == '1' ? 'selected' : ''}}>Đã cứu trợ</option>
                         <option value="2" {{request('type') == '2' ? 'selected' : ''}}>Đang tìm kiếm</option>
