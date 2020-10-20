@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
 
     <title>VietNam Hometown - Bản Đồ Realtime Các Điểm Cần Cứu Trợ Đồng Bào Miền Trung!</title>
     <meta name="description" content="VietNam Hometown - Bản Đồ Realtime Các Điểm Cứu Trợ Đồng Bào Miền Trung!">
@@ -123,7 +123,8 @@
             <form method="get" action="/">
                 <div class="form-group">
                     <label for="exampleInputEmail1">Tìm kiếm theo vị trí</label>
-                    <input class="form-control" type="text" id="locationTextField">
+                    <input name="location" value="{{request('location')}}" class="form-control" type="text"
+                           id="locationTextField">
                 </div>
                 <div class="form-group">
                     <label for="type_for_search">Tìm kiếm theo tình trạng</label>
@@ -149,17 +150,32 @@
     var currentLatLng = {};
 
     function getCreateBtn(latLng) {
-        currentLatLng = latLng;
+        setCurrentLatLng(latLng)
         return '<a class="btn btn-info" onclick="addMaker()"> Thêm mới điểm cứu trợ</a>';
     }
 
+    function setCurrentLatLng(latLng) {
+        currentLatLng = latLng
+        localStorage.setItem("lat", latLng['lat']);
+        localStorage.setItem("lng", latLng['lng']);
+    }
+
+    function detectLatLng(lat, lng) {
+        if (localStorage.getItem("lat") && localStorage.getItem("lng")) {
+            setCurrentLatLng({lat: localStorage.getItem("lat"), 'lng': localStorage.getItem("lng")})
+        }else{
+            setCurrentLatLng({lat: lat, 'lng': lng})
+        }
+    }
+
     function initialize() {
+        detectLatLng('{{$lat}}', '{{$lng}}');
         var infowindow = new google.maps.InfoWindow({
             disableAutoPan: true
         });
 
 
-        var center = new google.maps.LatLng('{{$lat}}', '{{$lng}}', 13);
+        var center = new google.maps.LatLng(currentLatLng['lat'], currentLatLng['lng'], 13);
 
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 15,
@@ -224,17 +240,24 @@
 
 
         var input = document.getElementById('locationTextField');
+
         var autocomplete = new google.maps.places.Autocomplete(input);
 
-        google.maps.event.addListener(autocomplete, 'place_changed', function() {
-            infowindow.close();
-            var place = autocomplete.getPlace();
-            if (place.geometry.viewport) {
-                map.fitBounds(place.geometry.viewport);
-            } else {
-                map.setCenter(place.geometry.location);
-                map.setZoom(17);  // Why 17? Because it looks good.
-            }}
+        google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                infowindow.close();
+                var place = autocomplete.getPlace();
+                if (place.geometry.viewport) {
+                    map.fitBounds(place.geometry.viewport);
+                } else {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);  // Why 17? Because it looks good.
+                }
+
+                var lat = place.geometry.location.lat(),
+                    lng = place.geometry.location.lng();
+                setCurrentLatLng({lat: lat, lng: lng})
+
+            }
         );
 
         var options = {
@@ -466,7 +489,11 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-56178425-10"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
     gtag('js', new Date());
 
     gtag('config', 'UA-56178425-10');
