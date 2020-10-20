@@ -15,11 +15,20 @@ class MapsController extends Controller
      */
     public function index()
     {
-        $maps = Map::all();
+        if (\request('type')) {
+            $maps = Map::where('type', request('type'))->get();
+        } else {
+            $maps = Map::all();
+        }
         $lat = session('lat', 16.8014069);
         $lng = session('lng', 107.053141);
 
         return view('maps')->with('data', $maps)->with('lat', $lat)->with('lng', $lng);
+    }
+
+    public function policy()
+    {
+        return view('policy');
     }
 
     /**

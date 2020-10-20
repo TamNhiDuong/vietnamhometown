@@ -17,7 +17,7 @@ class CreateMapsTable extends Migration
             $table->bigIncrements('id');
             $table->string('title');
             $table->char('type', 2)->default('1');
-            $table->string('description');
+            $table->string('description',4028);
             $table->string('lng');
             $table->string('lat');
             $table->timestamps();

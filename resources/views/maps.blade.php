@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 
     <title>VietNam Hometown - Bản Đồ Realtime Các Điểm Cần Cứu Trợ Đồng Bào Miền Trung!</title>
     <meta name="description" content="VietNam Hometown - Bản Đồ Realtime Các Điểm Cứu Trợ Đồng Bào Miền Trung!">
@@ -120,7 +120,24 @@
         <!-- Content
         =========================================== -->
         <div class="col-md-9" role="main">
-            <input class="form-control" type="text" id="locationTextField">
+            <form method="get" action="/">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Tìm kiếm theo vị trí</label>
+                    <input class="form-control" type="text" id="locationTextField">
+                </div>
+                <div class="form-group">
+                    <label for="type_for_search">Tìm kiếm theo tình trạng</label>
+                    <select class="form-control" name="type" id="type_for_search">
+                        <option value="0" {{request('type') == '0' ? 'selected' : ''}}>Chưa rõ</option>
+                        <option value="1" {{request('type') == '1' ? 'selected' : ''}}>Đã cứu trợ</option>
+                        <option value="2" {{request('type') == '2' ? 'selected' : ''}}>Đang tìm kiếm</option>
+                        <option value="3" {{request('type') == '3' ? 'selected' : ''}}>Đang cứu trợ</option>
+                        <option value="4" {{request('type') == '4' ? 'selected' : ''}}>Nguy cấp</option>
+                        <option value="5" {{request('type') == '5' ? 'selected' : ''}}>Cực kỳ nguy cấp</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            </form>
         </div>
     </div>
 </div>
@@ -207,6 +224,17 @@
 
         var input = document.getElementById('locationTextField');
         var autocomplete = new google.maps.places.Autocomplete(input);
+
+        google.maps.event.addListener(autocomplete, 'place_changed', function() {
+            infowindow.close();
+            var place = autocomplete.getPlace();
+            if (place.geometry.viewport) {
+                map.fitBounds(place.geometry.viewport);
+            } else {
+                map.setCenter(place.geometry.location);
+                map.setZoom(17);  // Why 17? Because it looks good.
+            }}
+        );
 
         var options = {
             imagePath: '/images/m'

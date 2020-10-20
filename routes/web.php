@@ -15,7 +15,7 @@ Route::get('/', 'MapsController@index')->name('index');
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/chinh-sach', 'MapsController@policy')->name('policy');
 
 
 Route::prefix('maps')->group(function () {
