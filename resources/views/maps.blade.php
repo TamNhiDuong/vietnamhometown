@@ -96,6 +96,9 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li>
+                    <a target="_blank" href="https://github.com/dangquocmin/vietnamhometown">Source code</a>
+                </li>
+                <li>
                     <a target="_blank" href="https://www.facebook.com/Vietnam-Hometown-108705317620863">FanPage</a>
                 </li>
             </ul>
