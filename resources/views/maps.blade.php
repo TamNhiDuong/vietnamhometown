@@ -163,16 +163,19 @@
         localStorage.setItem("lng", latLng['lng']);
     }
 
-    function detectLatLng(lat, lng) {
+    function detectLatLng(lat, lng, force) {
+        if (force) {
+            return setCurrentLatLng({lat: lat, 'lng': lng});
+        }
         if (localStorage.getItem("lat") && localStorage.getItem("lng")) {
             setCurrentLatLng({lat: localStorage.getItem("lat"), 'lng': localStorage.getItem("lng")})
-        }else{
+        } else {
             setCurrentLatLng({lat: lat, 'lng': lng})
         }
     }
 
     function initialize() {
-        detectLatLng('{{$lat}}', '{{$lng}}');
+        detectLatLng('{{$lat}}', '{{$lng}}', '{{$force}}');
         var infowindow = new google.maps.InfoWindow({
             disableAutoPan: true
         });
@@ -264,7 +267,8 @@
         );
 
         var options = {
-            imagePath: '/images/m'
+            imagePath: '/images/m',
+            maxZoom: 17
         };
         var markerCluster = new MarkerClusterer(map, markers, options);
     }

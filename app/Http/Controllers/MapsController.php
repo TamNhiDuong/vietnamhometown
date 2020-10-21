@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commune;
 use App\Map;
 
 class MapsController extends Controller
@@ -18,10 +19,22 @@ class MapsController extends Controller
         } else {
             $maps = Map::whereNotNull('lat')->whereNotNull('lng')->get();
         }
+
         $lat = session('lat', 16.8014069);
         $lng = session('lng', 107.053141);
 
-        return view('maps')->with('data', $maps)->with('lat', $lat)->with('lng', $lng);
+        $force = false;
+
+        if (request('commune_id')) {
+            $commune = Commune::where('commune_id', request('commune_id'))->first();
+            if (!empty($commune) && !empty($commune->lat)) {
+                $lat = $commune->lat;
+                $lng = $commune->lng;
+                $force = true;
+            }
+        }
+
+        return view('maps')->with('data', $maps)->with('lat', $lat)->with('lng', $lng)->with('force', $force);
     }
 
     public function policy()

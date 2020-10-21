@@ -92,10 +92,10 @@ class Sync extends Command
             ];
         }
 
-        $lat = substr($lat, 0, -3);
-        $lng = substr($lng, 0, -3);
-        $lat = $lat . rand(0, 999);
-        $lng = $lng . rand(0, 999);
+        $lat = substr($lat, 0, -4);
+        $lng = substr($lng, 0, -4);
+        $lat = $lat . rand(0, 9999);
+        $lng = $lng . rand(0, 9999);
 
         return [
             'lat' => $lat,
