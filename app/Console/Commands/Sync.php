@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Map;
+use App\Province;
 use Illuminate\Console\Command;
 
 class Sync extends Command
@@ -10,6 +11,14 @@ class Sync extends Command
     protected $_provinces = [];
     protected $_districts = [];
     protected $_communes = [];
+
+    protected $_needHelpProvinces = [
+        1, // thua thien hue
+        2, // quang tri
+        4, // ha tinh
+        8// quang binh
+    ];
+
     /**
      * The name and signature of the console command.
      *
@@ -41,33 +50,58 @@ class Sync extends Command
      */
     public function handle()
     {
-        $this->_init();
-        $this->_sync();
+        try {
+            $this->_init();
+            $this->_sync();
+        } catch (\Exception $exception) {
+            var_dump($exception->getMessage());
+        }
+
+    }
+
+    protected function _getProvinces()
+    {
+        return Province::whereIn('province_id', $this->_needHelpProvinces)->with('districts', 'districts.communes')->get();
     }
 
     protected function _init()
     {
-        $provinces = json_decode(file_get_contents(storage_path('provinces.json')), 1);
-        $districts = json_decode(file_get_contents(storage_path('districts.json')), 1);
-        $communes = json_decode(file_get_contents(storage_path('communes.json')), 1);
-
-        foreach ($provinces as $item) {
-            $this->_provinces[array_get($item, 'id')] = array_get($item, 'name');
-        }
-        foreach ($districts as $item) {
-            $this->_districts[array_get($item, 'id')] = array_get($item, 'name');
-        }
-        foreach ($communes as $item) {
-            $this->_communes[array_get($item, 'id')] = array_get($item, 'name');
+        $this->_provinces = $this->_getProvinces();
+        foreach ($this->_provinces as $province) {
+            foreach ($province->districts as $district) {
+                foreach ($district->communes as $commune) {
+                    $this->_communes[$commune->commune_id] = [
+                        'lat' => $commune->lat,
+                        'lng' => $commune->lng,
+                    ];
+                }
+            }
         }
     }
 
     protected function _getLocation($item)
     {
-        $province = array_get($this->_provinces, array_get($item, 'tinh'));
-        $district = array_get($this->_districts, array_get($item, 'huyen'));
-        $commune = array_get($this->_communes, array_get($item, 'xa'));
-        return $commune . ' , ' . $district . ', ' . $province;
+        $communeId = (int)array_get($item, 'xa');
+        $latlng = (array)array_get($this->_communes, $communeId);
+        $lat = (string)array_get($latlng, 'lat');
+        $lng = (string)array_get($latlng, 'lng');
+        if (empty($lat) || empty($lng)) {
+            return [
+                'lat' => '',
+                'lng' => '',
+            ];
+        }
+
+        $lat = substr($lat, 0, -3);
+        $lng = substr($lng, 0, -3);
+        $lat = $lat . rand(0, 999);
+        $lng = $lng . rand(0, 999);
+
+        return [
+            'lat' => $lat,
+            'lng' => $lng,
+        ];
+
     }
 
     protected function _sync()
@@ -75,17 +109,31 @@ class Sync extends Command
         $file = "https://cuuhomientrung.info/api/app/hodan/?format=json";
         $data = file_get_contents($file);
         $data = json_decode($data, 1);
+        $newData = [];
+
         foreach ($data as $key => $item) {
-            $location = $this->_getLocation($item);
-            if (empty($location)) {
+            $id = (int)array_get($item, 'id');
+            $newData[$id] = $item;
+        }
+
+        $existed = Map::whereIn('sync_id', array_keys($newData))->select('sync_id')->get()->toArray();
+
+        $existedArr = [];
+        foreach ($existed as $e) {
+            $existedArr[$e['sync_id']] = $e['sync_id'];
+        }
+        foreach ($newData as $item) {
+            $id = (int)array_get($item, 'id');
+            if (array_key_exists($id, $existedArr)) {
                 continue;
             }
             $title = array_get($item, 'name') . ' - ' . array_get($item, 'phone');
-            if (Map::where('title', $title)->count()) {
-                continue;
-            }
-            $latlng = $this->_detectLatLng($location);
+            $latlng = $this->_getLocation($item);
             $entity = [
+                'sync_id' => $id,
+                'province_id' => (int)array_get($item, 'tinh'),
+                'district_id' => (int)array_get($item, 'huyen'),
+                'commune_id' => (int)array_get($item, 'xa'),
                 'title' => $title,
                 'description' => array_get($item, 'location') . "\r\n" . array_get($item, 'note'),
                 'type' => $this->_convertStatus(array_get($item, 'status')),
@@ -94,7 +142,7 @@ class Sync extends Command
             ];
             Map::create($entity);
         }
-        return response()->json(['ok']);
+        return true;
     }
 
     protected function _convertStatus($status)
@@ -126,6 +174,17 @@ class Sync extends Command
 
     protected function _detectLatLng($address)
     {
+        if (empty($address)) {
+            return [
+                'lat' => '',
+                'lng' => '',
+            ];
+        }
+
+        return [
+            'lat' => '',
+            'lng' => '',
+        ];
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, 'https://maps.googleapis.com/maps/api/geocode/json?key=' . env('GOOGLE_GEO_API_KEY') . '&address=' . rawurlencode($address));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
