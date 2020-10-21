@@ -272,7 +272,7 @@
             lat: '{{$map->lat}}',
             lng: '{{$map->lng}}',
             icon: getIcon({{$map->type}}),
-            title: '{{$map->title}}',
+            title: '{{str_replace( array( "\n", "\r" ), array( "\\n", "\\r" ),$map->title)}}',
             description: "{{str_replace( array( "\n", "\r" ), array( "\\n", "\\r" ),$map->description)}}",
             type: '{{$map->type}}',
             id: '{{$map->id}}',
@@ -322,7 +322,7 @@
     }
 
     function getContent(data) {
-        return "<div> <h2>" + data['title'] + "</h2> " + getStatus(data['type']) + getEditBtn(data) + " <p style='padding: 10px; font-size: 18px'>" + data['description'].replace(/\n/g, "<br />");
+        return "<div> <h2>" + data['title'].replace(/\n/g, "<br />") + "</h2> " + getStatus(data['type']) + getEditBtn(data) + " <p style='padding: 10px; font-size: 18px'>" + data['description'].replace(/\n/g, "<br />");
         +"</p></div>";
     }
 

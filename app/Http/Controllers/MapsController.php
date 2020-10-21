@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Requests\MapRequest;
 use App\Map;
 
 class MapsController extends Controller
@@ -16,9 +14,9 @@ class MapsController extends Controller
     public function index()
     {
         if (\request('type') && request('type') != 'all') {
-            $maps = Map::where('type', request('type'))->get();
+            $maps = Map::where('type', request('type'))->whereNotNull('lat')->whereNotNull('lng')->get();
         } else {
-            $maps = Map::all();
+            $maps = Map::whereNotNull('lat')->whereNotNull('lng')->get();
         }
         $lat = session('lat', 16.8014069);
         $lng = session('lng', 107.053141);
